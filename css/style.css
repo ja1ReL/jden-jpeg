@@ -43,6 +43,8 @@ header {
     border: none;
     background: none;
     cursor: pointer;
+    color: black;
+    text-decoration: none;
 
     position: relative;
     z-index: 10; /* Keeps the button above the sliding menu */
@@ -116,28 +118,20 @@ header {
 }
 
 
-/* HERO INFORMATION */
+/* ALBUM INFORMATION */
 
-.hero-info {
-    position: absolute;
 
-    left: 30px;
-    bottom: 30px;
-
-    color: white;
-
-    z-index: 2; /* Keeps the text above the image */
+.album-info {
+    padding: 60px 30px;
 }
 
-
-.hero-info h1 {
+.album-info h1 {
     font-size: 24px;
     font-weight: normal;
 }
 
-
-.hero-info p {
-    margin-top: 5px;
+.album-info p {
+    margin-top: 8px;
     font-size: 14px;
 }
 

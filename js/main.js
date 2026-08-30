@@ -16,17 +16,3 @@ menuButton.addEventListener("click", () => {
 
 const header = document.querySelector("header"); // Gets the header
 
-
-window.addEventListener("scroll", () => { // Runs when the page is scrolled
-
-    if (window.scrollY > 50) { // Checks if the user has scrolled
-
-        header.classList.add("scrolled"); // Makes the header translucent
-
-    } else {
-
-        header.classList.remove("scrolled"); // Returns it to white
-
-    }
-
-});
