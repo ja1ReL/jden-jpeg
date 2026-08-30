@@ -1,0 +1,174 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* BODY */
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+
+/* HEADER */
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 90px;
+
+    padding: 25px 60px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    z-index: 10;
+
+    background-color: transparent;
+}
+
+.logo {
+    text-decoration: none;
+    color: black;
+}
+
+
+.menu-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+
+    position: relative;
+    z-index: 10; /* Keeps the button above the sliding menu */
+}
+
+
+.menu {
+    position: fixed;
+
+    top: 0;
+    right: 0;
+
+    width: 35.8%;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    gap: 30px;
+
+    background-color: white;
+
+    transform: translateX(100%); /* Moves menu completely off screen */
+
+    transition: transform 0.4s ease; /* Controls sliding animation */
+
+    z-index: 5;
+}
+
+
+.menu.open {
+    transform: translateX(0); /* Moves menu onto the screen */
+}
+
+
+.menu a {
+    color: black;
+    text-decoration: none;
+
+    font-size: 18px;
+    letter-spacing: 2px; /* Adds space between letters */
+    
+    transition: opacity 0.2s ease; /* Smooth hover effect */
+}
+
+.menu a:hover {
+    opacity: 0.5; /* Fades the link when hovered */
+}
+
+
+/* HERO */
+
+.hero {
+    position: relative;
+
+    margin-top: 90px; /* Starts the hero below the header */
+
+    height: calc(100vh - 130px); /* Fills the remaining screen */
+
+    overflow: hidden;
+}
+
+
+.hero img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover; /* Makes the image fill the hero */
+}
+
+
+/* HERO INFORMATION */
+
+.hero-info {
+    position: absolute;
+
+    left: 30px;
+    bottom: 30px;
+
+    color: white;
+
+    z-index: 2; /* Keeps the text above the image */
+}
+
+
+.hero-info h1 {
+    font-size: 24px;
+    font-weight: normal;
+}
+
+
+.hero-info p {
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+
+/* GALLERY */
+
+#gallery {
+    min-height: 100vh;
+    padding: 100px 30px;
+}
+
+
+/* ABOUT */
+
+#about {
+    min-height: 100vh;
+    padding: 100px 30px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+    header {
+        padding: 20px;
+    }
+
+    .hero-info {
+        left: 20px;
+        bottom: 25px;
+    }
+
+}
