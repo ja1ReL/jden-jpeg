@@ -43,8 +43,11 @@ header {
     border: none;
     background: none;
     cursor: pointer;
+
     color: black;
-    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
 
     position: relative;
     z-index: 10; /* Keeps the button above the sliding menu */
