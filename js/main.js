@@ -13,6 +13,3 @@ menuButton.addEventListener("click", () => {
     }
 
 });
-
-const header = document.querySelector("header"); // Gets the header
-

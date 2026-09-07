@@ -35,22 +35,33 @@
 
 
             <div class="photo-grid">
-
-                <img src="images/test.png" alt="Album photograph">
-                <img src="images/test.png" alt="Album photograph">
-                <img src="images/test.png" alt="Album photograph">
-                <img src="images/test.png" alt="Album photograph">
-                <img src="images/test.png" alt="Album photograph">
-                <img src="images/test.png" alt="Album photograph">
-
             </div>
 
         </section>
 
     </main>
 
+    <!-- LIGHTBOX -->
+<!-- Hidden until a photo is clicked -->
+<div class="lightbox">
+
+    <!-- Closes the lightbox -->
+    <button class="lightbox-close">×</button>
+
+    <!-- Shows the previous photo -->
+    <button class="lightbox-prev">←</button>
+
+    <!-- The selected photo will be placed here by JavaScript -->
+    <img class="lightbox-image" src="" alt="">
+
+    <!-- Shows the next photo -->
+    <button class="lightbox-next">→</button>
+
+</div>
 
     <script src="js/main.js"></script>
+    <script src="js/albums.js"></script>
+    <script src="js/album.js"></script>
 
 </body>
 </html>
