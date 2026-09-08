@@ -4,7 +4,6 @@ const urlParams = new URLSearchParams(window.location.search);
 // Gets the value after "?album="
 const albumName = urlParams.get("album");
 
-
 // Gets the album that matches the name in the URL
 const currentAlbum = albums[albumName];
 
@@ -50,12 +49,12 @@ currentAlbum.photos.forEach((photo) => {
 const photos = document.querySelectorAll(".album-photo");
 
 
-// Get the lightbox and the image displayed inside it
+// Gets the lightbox and the image displayed inside it
 const lightbox = document.querySelector(".lightbox");
 const lightboxImage = document.querySelector(".lightbox-image");
 
 
-// Get the lightbox controls
+// Gets the lightbox controls
 const closeButton = document.querySelector(".lightbox-close");
 const prevButton = document.querySelector(".lightbox-prev");
 const nextButton = document.querySelector(".lightbox-next");
@@ -65,7 +64,27 @@ const nextButton = document.querySelector(".lightbox-next");
 let currentPhoto = 0;
 
 
-// Add a click event to every album photo
+// Updates the visibility of the lightbox arrows
+function updateLightboxButtons() {
+
+    // Hide the previous arrow on the first photo
+    if (currentPhoto === 0) {
+        prevButton.style.display = "none";
+    } else {
+        prevButton.style.display = "block";
+    }
+
+
+    // Hide the next arrow on the last photo
+    if (currentPhoto === photos.length - 1) {
+        nextButton.style.display = "none";
+    } else {
+        nextButton.style.display = "block";
+    }
+}
+
+
+// Adds a click event to every album photo
 photos.forEach((photo, index) => {
 
     photo.addEventListener("click", () => {
@@ -77,25 +96,14 @@ photos.forEach((photo, index) => {
         lightboxImage.src = photo.src;
         lightboxImage.alt = photo.alt;
 
+        // Make sure the image starts in the center
+        lightboxImage.style.transform = "translateX(0)";
+
         // Add the "open" class to make the lightbox visible
         lightbox.classList.add("open");
 
-
-        // Hide the left arrow if this is the first photo
-        if (currentPhoto === 0) {
-            prevButton.style.display = "none";
-        } else {
-            prevButton.style.display = "block";
-        }
-
-
-        // Hide the right arrow if this is the last photo
-        if (currentPhoto === photos.length - 1) {
-            nextButton.style.display = "none";
-        } else {
-            nextButton.style.display = "block";
-        }
-
+        // Update the arrow visibility
+        updateLightboxButtons();
     });
 
 });
@@ -115,109 +123,150 @@ closeButton.addEventListener("click", () => {
 
     // Close the lightbox
     lightbox.classList.remove("open");
-
 });
 
 
 // Updates the photo shown inside the lightbox
 function showPhoto(index) {
 
+    // Update the current photo
     currentPhoto = index;
 
+    // Change the lightbox image
     lightboxImage.src = photos[currentPhoto].src;
     lightboxImage.alt = photos[currentPhoto].alt;
 
+    // Make sure the photo is centered
+    lightboxImage.style.transform = "translateX(0)";
+
+    // Update the arrow visibility
+    updateLightboxButtons();
 }
 
 
 // Show the next photo
 nextButton.addEventListener("click", () => {
 
-    // Move to the next photo
-    currentPhoto++;
-
-    showPhoto(currentPhoto);
-
-
-    // Hide the right arrow if this is the last photo
-    if (currentPhoto === photos.length - 1) {
-        nextButton.style.display = "none";
+    // Stop if there is no next photo
+    if (currentPhoto >= photos.length - 1) {
+        return;
     }
 
-
-    // Show the left arrow
-    prevButton.style.display = "block";
-
+    // Show the next photo
+    showPhoto(currentPhoto + 1);
 });
 
 
 // Show the previous photo
 prevButton.addEventListener("click", () => {
 
-    // Move to the previous photo
-    currentPhoto--;
-
-    showPhoto(currentPhoto);
-
-
-    // Hide the left arrow if this is the first photo
-    if (currentPhoto === 0) {
-        prevButton.style.display = "none";
+    // Stop if there is no previous photo
+    if (currentPhoto <= 0) {
+        return;
     }
 
-
-    // Show the right arrow
-    nextButton.style.display = "block";
-
+    // Show the previous photo
+    showPhoto(currentPhoto - 1);
 });
 
-// Keeps track of where the user's finger started
+
+// Keeps track of where the swipe started
 let touchStartX = 0;
 
-// Keeps track of where the user's finger ended
-let touchEndX = 0;
+// Keeps track of where the finger currently is
+let touchCurrentX = 0;
+
+// Keeps track of whether the user is currently swiping
+let isSwiping = false;
 
 
-// Remember where the swipe starts
+// Start the swipe
 lightbox.addEventListener("touchstart", (event) => {
 
-    touchStartX = event.changedTouches[0].screenX;
+    touchStartX = event.touches[0].clientX;
+    touchCurrentX = touchStartX;
 
+    isSwiping = true;
+
+    // Disable the CSS transition while dragging
+    lightboxImage.classList.add("swiping");
 });
 
 
-// Check the direction when the swipe ends
-lightbox.addEventListener("touchend", (event) => {
+// Move the photo with the finger
+lightbox.addEventListener("touchmove", (event) => {
 
-    touchEndX = event.changedTouches[0].screenX;
+    // Ignore movement if a swipe hasn't started
+    if (!isSwiping) {
+        return;
+    }
 
-    handleSwipe();
+    // Update the current finger position
+    touchCurrentX = event.touches[0].clientX;
 
+    // Calculate how far the finger has moved
+    const distance = touchCurrentX - touchStartX;
+
+    // Move the photo with the finger
+    lightboxImage.style.transform = `translateX(${distance}px)`;
 });
 
 
-// Handles the swipe direction
-function handleSwipe() {
+// Finish the swipe
+lightbox.addEventListener("touchend", () => {
 
-    // Calculate how far the finger moved
-    const swipeDistance = touchEndX - touchStartX;
+    // Ignore if a swipe wasn't started
+    if (!isSwiping) {
+        return;
+    }
+
+    isSwiping = false;
+
+    // Calculate the total swipe distance
+    const distance = touchCurrentX - touchStartX;
+
+    // Minimum distance required to change photos
+    const swipeThreshold = 80;
+
+    // Turn the transition back on
+    lightboxImage.classList.remove("swiping");
 
 
-    // Ignore very small movements
-    if (Math.abs(swipeDistance) < 50) {
+    // Swiped left → next photo
+    if (distance < -swipeThreshold && currentPhoto < photos.length - 1) {
+
+        // Slide the current photo away
+        lightboxImage.style.transform = "translateX(-100vw)";
+
+        setTimeout(() => {
+
+            // Show the next photo
+            showPhoto(currentPhoto + 1);
+
+        }, 250);
+
         return;
     }
 
 
-    // Swiped left → show the next photo
-    if (swipeDistance < 0 && currentPhoto < photos.length - 1) {
-        nextButton.click();
+    // Swiped right → previous photo
+    if (distance > swipeThreshold && currentPhoto > 0) {
+
+        // Slide the current photo away
+        lightboxImage.style.transform = "translateX(100vw)";
+
+        setTimeout(() => {
+
+            // Show the previous photo
+            showPhoto(currentPhoto - 1);
+
+        }, 250);
+
+        return;
     }
 
 
-    // Swiped right → show the previous photo
-    if (swipeDistance > 0 && currentPhoto > 0) {
-        prevButton.click();
-    }
-
-}
+    // Swipe wasn't large enough
+    // Return the photo to the center
+    lightboxImage.style.transform = "translateX(0)";
+});

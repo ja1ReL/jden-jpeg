@@ -326,8 +326,13 @@ header {
 
     /* Prevents the image from being distorted */
     object-fit: contain;
+    transition: transform 0.25s ease;
+
 }
 
+.lightbox-image.swiping {
+    transition: none;
+}
 
 /* General styling for the lightbox buttons */
 .lightbox button {
