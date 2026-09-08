@@ -170,3 +170,54 @@ prevButton.addEventListener("click", () => {
     nextButton.style.display = "block";
 
 });
+
+// Keeps track of where the user's finger started
+let touchStartX = 0;
+
+// Keeps track of where the user's finger ended
+let touchEndX = 0;
+
+
+// Remember where the swipe starts
+lightbox.addEventListener("touchstart", (event) => {
+
+    touchStartX = event.changedTouches[0].screenX;
+
+});
+
+
+// Check the direction when the swipe ends
+lightbox.addEventListener("touchend", (event) => {
+
+    touchEndX = event.changedTouches[0].screenX;
+
+    handleSwipe();
+
+});
+
+
+// Handles the swipe direction
+function handleSwipe() {
+
+    // Calculate how far the finger moved
+    const swipeDistance = touchEndX - touchStartX;
+
+
+    // Ignore very small movements
+    if (Math.abs(swipeDistance) < 50) {
+        return;
+    }
+
+
+    // Swiped left → show the next photo
+    if (swipeDistance < 0 && currentPhoto < photos.length - 1) {
+        nextButton.click();
+    }
+
+
+    // Swiped right → show the previous photo
+    if (swipeDistance > 0 && currentPhoto > 0) {
+        prevButton.click();
+    }
+
+}

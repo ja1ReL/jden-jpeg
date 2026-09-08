@@ -364,18 +364,39 @@ header {
 
 /* ABOUT */
 
-#about {
+.about-page {
     min-height: 100vh;
-    padding: 100px 30px;
+    padding: 150px 60px 80px;
 }
 
+.about-text {
+    max-width: 600px;
+}
 
+.about-text h1 {
+    font-size: 24px;
+    font-weight: normal;
+}
+
+.about-text p {
+    margin-top: 20px;
+    font-size: 16px;
+    line-height: 1.7;
+}
 /* MOBILE */
-
 @media (max-width: 768px) {
 
     header {
         padding: 20px;
+    }
+
+    .menu {
+        width: 100%;
+    }
+
+    .hero {
+        height: 65vh;
+        margin-top: 90px;
     }
 
     .gallery {
@@ -394,15 +415,35 @@ header {
     .album img {
         height: 400px;
     }
+
     .album-page {
-    padding: 120px 20px 60px;
-}
+        padding: 120px 20px 60px;
+    }
 
-.album-header {
-    margin-bottom: 40px;
-}
+    .album-header {
+        margin-bottom: 40px;
+    }
 
-.photo-grid {
-    gap: 30px;
-}
+    .photo-grid {
+        gap: 20px;
+    }
+
+    .album-info {
+        padding: 40px 20px;
+    }
+
+    /* Make lightbox navigation subtle on mobile */
+    .lightbox button {
+        font-size: 28px;
+    }
+
+    .lightbox-prev,
+    .lightbox-next {
+        opacity: 0.4;
+    }
+
+    .lightbox-prev:hover,
+    .lightbox-next:hover {
+        opacity: 0.9;
+    }
 }
