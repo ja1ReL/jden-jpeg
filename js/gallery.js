@@ -13,7 +13,7 @@ Object.entries(albums).forEach(([albumName, album]) => {
 
     // Creates the album cover image
     const image = document.createElement("img");
-    image.src = album.photos[0];
+    image.src = album.photos[0].src;
     image.alt = album.title;
 
     // Creates the album title

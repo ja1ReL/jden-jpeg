@@ -5,21 +5,45 @@ const albums = {
         title: "ALBUM 1",
         description: "First test album.",
         photos: [
-            "images/test2.jpg",
-            "images/test3.jpg",
-            "images/test.png",
-            "images/test5.jpg"
-        ]
+    {
+        src: "images/test2.jpg",
+        size: "normal"
+    },
+    {
+        src: "images/test3.jpg",
+        size: "normal"
+    },
+    {
+        src: "images/test.png",
+        size: "wide"
+    },
+    {
+        src: "images/test5.jpg",
+        size: "large"
+    }
+]
     },
 
     album2: {
         title: "ALBUM 2",
         description: "Second test album.",
         photos: [
-            "images/test.png",
-            "images/test3.jpg",
-            "images/test.png",
-            "images/test4.jpg"
-        ]
+    {
+        src: "images/test.png",
+        size: "normal"
+    },
+    {
+        src: "images/test3.jpg",
+        size: "wide"
+    },
+    {
+        src: "images/test.png",
+        size: "normal"
+    },
+    {
+        src: "images/test4.jpg",
+        size: "large"
+    }
+]
     }
 };

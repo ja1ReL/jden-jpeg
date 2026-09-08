@@ -105,19 +105,40 @@ header {
 .hero {
     position: relative;
 
-    margin-top: 90px; /* Starts the hero below the header */
+    margin-top: 90px;
 
-    height: calc(100vh - 130px); /* Fills the remaining screen */
+    height: calc(100vh - 130px);
 
     overflow: hidden;
 }
 
+.hero-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
 
-.hero img {
+
+.hero-image {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
     width: 100%;
     height: 100%;
 
-    object-fit: cover; /* Makes the image fill the hero */
+    object-fit: cover;
+
+    opacity: 0;
+
+    transition: opacity 1.2s ease;
+}
+
+
+/* The currently visible image */
+.hero-image.active {
+    opacity: 1;
 }
 
 
@@ -239,13 +260,30 @@ header {
     gap: 30px;
 }
 
-
 .photo-grid img {
-    width: 90%;
     height: auto;
-
-    margin: 0 auto;
     display: block;
+    margin: 0 auto;
+}
+
+/* Default photo size */
+.photo-grid img.normal {
+    width: 90%;
+}
+
+/* Slightly larger photo */
+.photo-grid img.large {
+    width: 95%;
+}
+
+/* Slightly wider photo */
+.photo-grid img.wide {
+    width: 100%;
+}
+
+/* Slightly smaller photo */
+.photo-grid img.small {
+    width: 80%;
 }
 
 /* LIGHTBOX */
@@ -340,11 +378,6 @@ header {
         padding: 20px;
     }
 
-    .hero-info {
-        left: 20px;
-        bottom: 25px;
-    }
-
     .gallery {
         padding: 120px 20px 60px;
     }
@@ -370,10 +403,6 @@ header {
 }
 
 .photo-grid {
-    gap: 20px;
-}
-
-.photo-grid img {
-    height: 450px;
+    gap: 30px;
 }
 }

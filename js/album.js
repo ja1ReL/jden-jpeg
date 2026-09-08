@@ -30,10 +30,13 @@ currentAlbum.photos.forEach((photo) => {
     const image = document.createElement("img");
 
     // Gives the image the correct photo
-    image.src = photo;
+    image.src = photo.src;
 
     // Gives the image the same class used by our lightbox
     image.classList.add("album-photo");
+
+    // Gives the image its size class
+    image.classList.add(photo.size);
 
     // Adds alternative text
     image.alt = "Album photograph";
