@@ -288,7 +288,7 @@ header {
 
 /* LIGHTBOX */
 
-/* Full-screen container that sits on top of the page */
+/* Full-screen container */
 .lightbox {
     position: fixed;
 
@@ -298,33 +298,81 @@ header {
     width: 100%;
     height: 100vh;
 
-    /* Dark background behind the photo */
+    /* Dark background */
     background-color: rgba(0, 0, 0, 0.95);
 
-    /* Hidden until JavaScript adds the "open" class */
+    /* Hidden until opened */
     display: none;
 
-    /* Centers the photograph */
-    align-items: center;
-    justify-content: center;
-
-    /* Makes sure the lightbox appears above everything else */
+    /* Above the rest of the page */
     z-index: 100;
 }
 
 
 /* Makes the lightbox visible */
 .lightbox.open {
-    display: flex;
+    display: block;
 }
 
 
-/* Controls the size of the photograph inside the lightbox */
-.lightbox-image {
+/* Visible area of the swipe viewer */
+.lightbox-window {
+    width: 100%;
+    height: 100%;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    /* Browser handles horizontal swipe snapping */
+    scroll-snap-type: x mandatory;
+
+    /* Arrow navigation will animate smoothly */
+    scroll-behavior: smooth;
+
+    /* Hide scrollbar */
+    scrollbar-width: none;
+
+    /* Tell the browser this area handles horizontal gestures */
+    touch-action: pan-x;
+}
+
+
+/* Hide scrollbar in WebKit browsers */
+.lightbox-window::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* Holds all photo slides in one horizontal row */
+.lightbox-track {
+    display: flex;
+
+    width: max-content;
+    height: 100%;
+}
+
+
+/* Each slide fills the viewport */
+.lightbox-slide {
+    flex: 0 0 100vw;
+
+    width: 100vw;
+    height: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    scroll-snap-align: center;
+}
+
+
+/* Photo inside a slide */
+.lightbox-slide img {
     max-width: 90%;
     max-height: 90%;
 
-    /* Prevents the image from being distorted */
     object-fit: contain;
 }
 
@@ -341,26 +389,46 @@ header {
     cursor: pointer;
 
     font-size: 40px;
+
+    z-index: 1000;
+
+    opacity: 0.7;
+
+    transition: opacity 0.2s ease;
 }
 
 
-/* Position of the close button */
+/* Make arrows more obvious when hovered */
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    opacity: 1;
+}
+
+
+/* Close button */
 .lightbox-close {
     top: 25px;
     right: 35px;
+
+    opacity: 0.9;
 }
 
 
-/* Position of the previous button */
+/* Previous button */
 .lightbox-prev {
     left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 
-/* Position of the next button */
+/* Next button */
 .lightbox-next {
     right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
 }
+
 
 /* ABOUT */
 
@@ -441,7 +509,7 @@ header {
 
     .lightbox-prev,
     .lightbox-next {
-        opacity: 0.4;
+        opacity: 0.6;
     }
 
     .lightbox-prev:hover,

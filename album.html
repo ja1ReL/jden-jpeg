@@ -41,7 +41,8 @@
 
     </main>
 
-    <!-- LIGHTBOX -->
+<!-- LIGHTBOX -->
+
 <!-- Hidden until a photo is clicked -->
 <div class="lightbox">
 
@@ -51,8 +52,13 @@
     <!-- Shows the previous photo -->
     <button class="lightbox-prev">←</button>
 
-    <!-- The selected photo will be placed here by JavaScript -->
-    <img class="lightbox-image" src="" alt="">
+    <!-- Visible window for the horizontal swipe -->
+    <div class="lightbox-window">
+
+        <!-- JavaScript creates the photo slides here -->
+        <div class="lightbox-track"></div>
+
+    </div>
 
     <!-- Shows the next photo -->
     <button class="lightbox-next">→</button>
