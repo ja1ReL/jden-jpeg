@@ -4,370 +4,431 @@ const urlParams = new URLSearchParams(window.location.search);
 // Gets the value after "?album="
 const albumName = urlParams.get("album");
 
-// Gets the album that matches the name in the URL
-const currentAlbum = albums[albumName];
-
 
 // Gets the album title and description elements
 const albumTitle = document.querySelector(".album-header h1");
 const albumDescription = document.querySelector(".album-header p");
 
-
-// Displays the current album's title and description
-albumTitle.textContent = currentAlbum.title;
-albumDescription.textContent = currentAlbum.description;
-
-
 // Gets the container where the album photos will be displayed
 const photoGrid = document.querySelector(".photo-grid");
 
 
-// Creates an image for every photo in the current album
-currentAlbum.photos.forEach((photo) => {
+// Stores the album returned from Supabase
+let currentAlbum = null;
 
-    // Creates a new image element
-    const image = document.createElement("img");
-
-    // Gives the image the correct photo
-    image.src = photo.src;
-
-    // Gives the image the album-photo class
-    image.classList.add("album-photo");
-
-    // Gives the image its size class
-    image.classList.add(photo.size);
-
-    // Adds alternative text
-    image.alt = "Album photograph";
-
-    // Adds the image to the page
-    photoGrid.appendChild(image);
-});
+// Stores the photos returned from Supabase
+let albumPhotos = [];
 
 
-// Gets all album photos
-const photos = document.querySelectorAll(".album-photo");
+// Loads the album and its photos from Supabase
+async function loadAlbum() {
+
+    // Get the album using the slug from the URL
+    const { data: album, error: albumError } = await supabaseClient
+        .from("albums")
+        .select("id, title, description")
+        .eq("slug", albumName)
+        .single();
 
 
-// Gets the lightbox
-const lightbox = document.querySelector(".lightbox");
-
-// Gets the scrolling window
-const lightboxWindow = document.querySelector(".lightbox-window");
-
-// Gets the horizontal track
-const lightboxTrack = document.querySelector(".lightbox-track");
-
-
-// Gets the lightbox controls
-const closeButton = document.querySelector(".lightbox-close");
-const prevButton = document.querySelector(".lightbox-prev");
-const nextButton = document.querySelector(".lightbox-next");
-
-
-// Keeps track of which photo is currently being viewed
-let currentPhoto = 0;
-
-// Prevents rebuilding the slides unnecessarily
-let slidesCreated = false;
-
-
-// Creates all lightbox slides
-function createLightboxSlides() {
-
-    // Stop if the slides already exist
-    if (slidesCreated) {
+    // Stop if the album couldn't be found
+    if (albumError) {
+        console.error("Could not load album:", albumError);
         return;
     }
 
-    // Mark slides as created
-    slidesCreated = true;
+
+    // Save the album
+    currentAlbum = album;
 
 
-    currentAlbum.photos.forEach((photo, index) => {
-
-        // Creates a slide
-        const slide = document.createElement("div");
-
-        // Gives the slide its CSS class
-        slide.classList.add("lightbox-slide");
+    // Display the album title and description
+    albumTitle.textContent = currentAlbum.title;
+    albumDescription.textContent = currentAlbum.description || "";
 
 
-        // Creates the lightbox image
+    // Get the photos belonging to this album
+    const { data: photos, error: photosError } = await supabaseClient
+        .from("photos")
+        .select("id, image_url, size, sort_order")
+        .eq("album_id", currentAlbum.id)
+        .order("sort_order", { ascending: true });
+
+
+    // Stop if the photos couldn't be loaded
+    if (photosError) {
+        console.error("Could not load photos:", photosError);
+        return;
+    }
+
+
+    // Save the photos
+    albumPhotos = photos;
+
+
+    // Create the album photos on the page
+    albumPhotos.forEach((photo) => {
+
+        // Create a new image
         const image = document.createElement("img");
 
-        // Store the photo path without loading it yet
-        image.dataset.src = photo.src;
+        // Use the Supabase Storage URL
+        image.src = photo.image_url;
+
+        // Add the album-photo class
+        image.classList.add("album-photo");
+
+        // Add the size class
+        image.classList.add(photo.size);
 
         // Add alternative text
         image.alt = "Album photograph";
 
-
-        // Add the image to the slide
-        slide.appendChild(image);
-
-
-        // Add the slide to the track
-        lightboxTrack.appendChild(slide);
+        // Add the image to the page
+        photoGrid.appendChild(image);
     });
+
+
+    // Set up the lightbox after the photos exist
+    setupLightbox();
 }
 
 
-// Loads one lightbox photo
-function loadPhoto(index) {
+// Sets up the lightbox and its controls
+function setupLightbox() {
 
-    // Stop if the photo doesn't exist
-    if (index < 0 || index >= currentAlbum.photos.length) {
-        return;
-    }
+    // Gets all album photos
+    const photos = document.querySelectorAll(".album-photo");
 
 
-    // Get the slide
-    const slide = lightboxTrack.children[index];
+    // Gets the lightbox
+    const lightbox = document.querySelector(".lightbox");
 
-    // Get the image inside it
-    const image = slide.querySelector("img");
+    // Gets the scrolling window
+    const lightboxWindow = document.querySelector(".lightbox-window");
 
-
-    // Only load it once
-    if (!image.src) {
-
-        image.src = image.dataset.src;
-    }
-}
+    // Gets the horizontal track
+    const lightboxTrack = document.querySelector(".lightbox-track");
 
 
-// Preloads the current photo and its neighbors
-function preloadNearbyPhotos(index) {
-
-    // Load the current photo
-    loadPhoto(index);
-
-    // Load the previous photo
-    loadPhoto(index - 1);
-
-    // Load the next photo
-    loadPhoto(index + 1);
-}
+    // Gets the lightbox controls
+    const closeButton = document.querySelector(".lightbox-close");
+    const prevButton = document.querySelector(".lightbox-prev");
+    const nextButton = document.querySelector(".lightbox-next");
 
 
-// Updates which arrows are visible
-function updateLightboxButtons() {
+    // Keeps track of which photo is currently being viewed
+    let currentPhoto = 0;
 
-    // Hide previous arrow on the first photo
-    if (currentPhoto === 0) {
-        prevButton.style.display = "none";
-    } else {
-        prevButton.style.display = "block";
-    }
+    // Prevents rebuilding the slides unnecessarily
+    let slidesCreated = false;
 
-
-    // Hide next arrow on the last photo
-    if (currentPhoto === photos.length - 1) {
-        nextButton.style.display = "none";
-    } else {
-        nextButton.style.display = "block";
-    }
-}
+    // Used to detect when scrolling has stopped
+    let scrollTimer;
 
 
-// Opens the lightbox on a selected photo
-photos.forEach((photo, index) => {
+    // Creates all lightbox slides
+    function createLightboxSlides() {
 
-    photo.addEventListener("click", () => {
+        // Stop if the slides already exist
+        if (slidesCreated) {
+            return;
+        }
 
-        // Remember which photo was clicked
-        currentPhoto = index;
-
-
-        // Create the lightbox slides
-        createLightboxSlides();
-
-
-        // Load the clicked photo and its neighbors
-        preloadNearbyPhotos(currentPhoto);
+        // Mark slides as created
+        slidesCreated = true;
 
 
-        // Open the lightbox
-        lightbox.classList.add("open");
+        albumPhotos.forEach((photo) => {
+
+            // Create a slide
+            const slide = document.createElement("div");
+
+            // Give the slide its CSS class
+            slide.classList.add("lightbox-slide");
 
 
-        // Jump directly to the clicked photo
-        lightboxWindow.scrollTo({
-            left: currentPhoto * lightboxWindow.clientWidth,
-            behavior: "instant"
+            // Create the lightbox image
+            const image = document.createElement("img");
+
+            // Store the photo URL without loading it yet
+            image.dataset.src = photo.image_url;
+
+            // Add alternative text
+            image.alt = "Album photograph";
+
+
+            // Add the image to the slide
+            slide.appendChild(image);
+
+
+            // Add the slide to the track
+            lightboxTrack.appendChild(slide);
         });
+    }
 
 
-        // Update arrow visibility
-        updateLightboxButtons();
-    });
-});
+    // Loads one lightbox photo
+    function loadPhoto(index) {
+
+        // Stop if the photo doesn't exist
+        if (
+            index < 0 ||
+            index >= albumPhotos.length
+        ) {
+            return;
+        }
 
 
-// Closes the lightbox and returns to the current photo
-function closeLightbox() {
+        // Get the slide
+        const slide = lightboxTrack.children[index];
 
-    // Get the photo currently being viewed
-    const photoToReturnTo = photos[currentPhoto];
-
-
-    // Scroll the page back to that photo
-    photoToReturnTo.scrollIntoView({
-        behavior: "instant",
-        block: "center"
-    });
+        // Get the image inside the slide
+        const image = slide.querySelector("img");
 
 
-    // Close the lightbox
-    lightbox.classList.remove("open");
-}
-
-
-// Close the lightbox when the X is clicked
-closeButton.addEventListener("click", closeLightbox);
-
-
-// Close the lightbox when Escape is pressed
-document.addEventListener("keydown", (event) => {
-
-    // Check if Escape was pressed
-    if (event.key === "Escape") {
-
-        // Only close if the lightbox is open
-        if (lightbox.classList.contains("open")) {
-            closeLightbox();
+        // Only load the image once
+        if (!image.src) {
+            image.src = image.dataset.src;
         }
     }
 
-});
 
-// Move through photos with the keyboard arrow keys
-document.addEventListener("keydown", (event) => {
+    // Loads the current photo and its neighbors
+    function preloadNearbyPhotos(index) {
 
-    // Ignore keyboard navigation if the lightbox is closed
-    if (!lightbox.classList.contains("open")) {
-        return;
-    }
+        // Load the current photo
+        loadPhoto(index);
 
-    // Left arrow → previous photo
-    if (event.key === "ArrowLeft") {
+        // Load the previous photo
+        loadPhoto(index - 1);
 
-        // Stop the page from scrolling horizontally
-        event.preventDefault();
-
-        // Move to the previous photo
-        prevButton.click();
+        // Load the next photo
+        loadPhoto(index + 1);
     }
 
 
-    // Right arrow → next photo
-    if (event.key === "ArrowRight") {
+    // Updates which arrows are visible
+    function updateLightboxButtons() {
 
-        // Stop the page from scrolling horizontally
-        event.preventDefault();
+        // Hide previous arrow on the first photo
+        if (currentPhoto === 0) {
+            prevButton.style.display = "none";
+        } else {
+            prevButton.style.display = "block";
+        }
 
-        // Move to the next photo
-        nextButton.click();
+
+        // Hide next arrow on the last photo
+        if (currentPhoto === albumPhotos.length - 1) {
+            nextButton.style.display = "none";
+        } else {
+            nextButton.style.display = "block";
+        }
     }
 
-});
 
-// Moves to a specific photo
-function showPhoto(index) {
+    // Opens the lightbox when an album photo is clicked
+    photos.forEach((photo, index) => {
 
-    // Stop at invalid indexes
-    if (index < 0 || index >= photos.length) {
-        return;
-    }
+        photo.addEventListener("click", () => {
 
-
-    // Update the current photo
-    currentPhoto = index;
+            // Remember which photo was clicked
+            currentPhoto = index;
 
 
-    // Make sure nearby images are loaded
-    preloadNearbyPhotos(currentPhoto);
+            // Create the lightbox slides
+            createLightboxSlides();
 
 
-    // Smoothly scroll to the photo
-    lightboxWindow.scrollTo({
-        left: currentPhoto * lightboxWindow.clientWidth,
-        behavior: "smooth"
+            // Load the clicked photo and its neighbors
+            preloadNearbyPhotos(currentPhoto);
+
+
+            // Open the lightbox
+            lightbox.classList.add("open");
+
+
+            // Jump directly to the clicked photo
+            lightboxWindow.scrollTo({
+                left: currentPhoto * lightboxWindow.clientWidth,
+                behavior: "instant"
+            });
+
+
+            // Update arrow visibility
+            updateLightboxButtons();
+        });
     });
 
 
-    // Update the arrows
-    updateLightboxButtons();
-}
+    // Closes the lightbox and returns to the current photo
+    function closeLightbox() {
+
+        // Get the photo currently being viewed
+        const photoToReturnTo = photos[currentPhoto];
 
 
-// Show the next photo
-nextButton.addEventListener("click", () => {
+        // Scroll the page back to that photo
+        photoToReturnTo.scrollIntoView({
+            behavior: "instant",
+            block: "center"
+        });
 
-    // Stop at the last photo
-    if (currentPhoto >= photos.length - 1) {
-        return;
+
+        // Close the lightbox
+        lightbox.classList.remove("open");
     }
 
 
-    // Move to the next photo
-    showPhoto(currentPhoto + 1);
-});
+    // Close the lightbox when the X is clicked
+    closeButton.addEventListener("click", closeLightbox);
 
 
-// Show the previous photo
-prevButton.addEventListener("click", () => {
+    // Close the lightbox when Escape is pressed
+    document.addEventListener("keydown", (event) => {
 
-    // Stop at the first photo
-    if (currentPhoto <= 0) {
-        return;
-    }
-
-
-    // Move to the previous photo
-    showPhoto(currentPhoto - 1);
-});
-
-
-// Detect when the user has finished a swipe
-let scrollTimer;
+        // Check if Escape was pressed
+        if (
+            event.key === "Escape" &&
+            lightbox.classList.contains("open")
+        ) {
+            closeLightbox();
+        }
+    });
 
 
-// Watch the lightbox while the user swipes
-lightboxWindow.addEventListener("scroll", () => {
+    // Moves to a specific photo
+    function showPhoto(index) {
 
-    // Get the width of one slide
-    const slideWidth = lightboxWindow.clientWidth;
+        // Stop at invalid indexes
+        if (
+            index < 0 ||
+            index >= albumPhotos.length
+        ) {
+            return;
+        }
 
 
-    // Figure out which slide is currently closest
-    const newPhoto = Math.round(
-        lightboxWindow.scrollLeft / slideWidth
-    );
+        // Update the current photo
+        currentPhoto = index;
 
 
-    // Update the current photo while scrolling
-    if (newPhoto !== currentPhoto) {
-
-        currentPhoto = newPhoto;
-
-        // Make sure the next neighboring photos are loaded
+        // Make sure nearby images are loaded
         preloadNearbyPhotos(currentPhoto);
+
+
+        // Smoothly scroll to the photo
+        lightboxWindow.scrollTo({
+            left: currentPhoto * lightboxWindow.clientWidth,
+            behavior: "smooth"
+        });
+
 
         // Update the arrows
         updateLightboxButtons();
     }
 
 
-    // Wait until scrolling stops
-    clearTimeout(scrollTimer);
+    // Show the next photo
+    nextButton.addEventListener("click", () => {
+
+        // Stop at the last photo
+        if (currentPhoto >= albumPhotos.length - 1) {
+            return;
+        }
 
 
-    scrollTimer = setTimeout(() => {
+        // Move to the next photo
+        showPhoto(currentPhoto + 1);
+    });
 
-        // Make sure the final photo is loaded
-        preloadNearbyPhotos(currentPhoto);
 
-    }, 100);
-});
+    // Show the previous photo
+    prevButton.addEventListener("click", () => {
+
+        // Stop at the first photo
+        if (currentPhoto <= 0) {
+            return;
+        }
+
+
+        // Move to the previous photo
+        showPhoto(currentPhoto - 1);
+    });
+
+
+    // Keyboard navigation
+    document.addEventListener("keydown", (event) => {
+
+        // Ignore keyboard navigation if the lightbox is closed
+        if (!lightbox.classList.contains("open")) {
+            return;
+        }
+
+
+        // Left arrow → previous photo
+        if (event.key === "ArrowLeft") {
+
+            // Stop the page from scrolling
+            event.preventDefault();
+
+            // Use the existing previous-button logic
+            prevButton.click();
+        }
+
+
+        // Right arrow → next photo
+        if (event.key === "ArrowRight") {
+
+            // Stop the page from scrolling
+            event.preventDefault();
+
+            // Use the existing next-button logic
+            nextButton.click();
+        }
+    });
+
+
+    // Detect the current photo while the user swipes
+    lightboxWindow.addEventListener("scroll", () => {
+
+        // Get the width of one slide
+        const slideWidth = lightboxWindow.clientWidth;
+
+
+        // Figure out which slide is closest
+        const newPhoto = Math.round(
+            lightboxWindow.scrollLeft / slideWidth
+        );
+
+
+        // Update only when the photo actually changes
+        if (newPhoto !== currentPhoto) {
+
+            currentPhoto = newPhoto;
+
+            // Load the neighboring photos
+            preloadNearbyPhotos(currentPhoto);
+
+            // Update the arrows
+            updateLightboxButtons();
+        }
+
+
+        // Wait until scrolling stops
+        clearTimeout(scrollTimer);
+
+
+        scrollTimer = setTimeout(() => {
+
+            // Make sure the current photo is loaded
+            preloadNearbyPhotos(currentPhoto);
+
+        }, 100);
+    });
+}
+
+
+// Start loading the album
+loadAlbum();
